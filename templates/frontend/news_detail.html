@@ -1,0 +1,122 @@
+<!-- templates/frontend/news_detail.html -->
+{% extends "frontend/base.html" %}
+
+{% block title %}{{ news.title }} - News Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="news-article">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('all_news', category=news.category) }}">{{ news.category }}</a></li>
+                        <li class="breadcrumb-item active">{{ news.title[:30] }}...</li>
+                    </ol>
+                </nav>
+
+                <!-- Article Header -->
+                <header class="article-header mb-4">
+                    <span class="badge bg-primary mb-2">{{ news.category }}</span>
+                    <h1 class="article-title">{{ news.title }}</h1>
+                    <div class="article-meta text-muted mb-3">
+                        <span><i class="fas fa-calendar me-1"></i> {{ news.date_created.strftime('%B %d, %Y') }}</span>
+                        {% if news.date_updated and news.date_updated != news.date_created %}
+                        <span class="ms-3"><i class="fas fa-edit me-1"></i> Updated: {{ news.date_updated.strftime('%B %d, %Y') }}</span>
+                        {% endif %}
+                        <span class="ms-3"><i class="fas fa-eye me-1"></i> {{ news.views }} views</span>
+                        {% if news.author %}
+                        <span class="ms-3"><i class="fas fa-user me-1"></i> {{ news.author }}</span>
+                        {% endif %}
+                    </div>
+                </header>
+
+                <!-- Article Image -->
+                {% if news.image %}
+                <div class="article-image mb-4">
+                    <img src="{{ url_for('static', filename='uploads/' + news.image) }}" alt="{{ news.title }}" class="img-fluid rounded">
+                </div>
+                {% else %}
+                <div class="article-image mb-4 bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fas fa-newspaper fa-5x text-muted"></i>
+                </div>
+                {% endif %}
+
+                <!-- Article Content -->
+                <div class="article-content">
+                    {{ news.content|replace('\n', '<br>')|safe }}
+                </div>
+
+                <!-- Social Share Buttons -->
+                <div class="social-share mt-5 pt-4 border-top">
+                    <h5>Share this article:</h5>
+                    <div class="share-buttons">
+                        <a href="#" class="btn btn-facebook me-2" onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook-f me-1"></i> Facebook
+                        </a>
+                        <a href="#" class="btn btn-linkedin me-2" onclick="shareOnLinkedIn()">
+                            <i class="fab fa-linkedin-in me-1"></i> LinkedIn
+                        </a>
+                        <a href="#" class="btn btn-instagram" onclick="shareOnInstagram()">
+                            <i class="fab fa-instagram me-1"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Related News -->
+            {% if related_news %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Related News</h5>
+                    {% for related in related_news %}
+                    <div class="related-news-item mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                        <h6 class="mb-1">{{ related.title }}</h6>
+                        <p class="small text-muted mb-1">{{ related.content[:80] }}...</p>
+                        <a href="{{ url_for('news_detail', news_id=related._id) }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Popular News -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Popular News</h5>
+                    <div class="list-group list-group-flush">
+                        <!-- This would be populated with actual popular news -->
+                        <a href="#" class="list-group-item list-group-item-action">Most viewed news article 1</a>
+                        <a href="#" class="list-group-item list-group-item-action">Most viewed news article 2</a>
+                        <a href="#" class="list-group-item list-group-item-action">Most viewed news article 3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareOnFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+}
+
+function shareOnLinkedIn() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+}
+
+function shareOnInstagram() {
+    // Note: Instagram doesn't support direct sharing via URL
+    alert('Copy the link and share it on Instagram: ' + window.location.href);
+}
+</script>
+{% endblock %}

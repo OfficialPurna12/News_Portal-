@@ -1,0 +1,354 @@
+<!-- templates/admin/add_news.html -->
+{% extends "admin/base.html" %}
+
+{% block title %}Add News - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add New News</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin_news_list') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to News List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Create New News Article
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_add_news') }}" enctype="multipart/form-data" id="newsForm">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">News Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg" id="title" name="title" required 
+                                       placeholder="Enter news title" maxlength="200">
+                                <div class="form-text">Maximum 200 characters</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Featured Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        <div class="form-text">Recommended size: 1200x630 pixels. Supported formats: JPG, PNG, GIF</div>
+                        
+                        <!-- Image Preview -->
+                        <div class="mt-2" id="imagePreviewContainer" style="display: none;">
+                            <img id="imagePreview" class="img-thumbnail" style="max-height: 200px;">
+                            <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeImage()">
+                                <i class="fas fa-times me-1"></i>Remove Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="content" class="form-label">News Content <span class="text-danger">*</span></label>
+                        <textarea class="form-control rich-text-editor" id="content" name="content" rows="15" 
+                                  placeholder="Write your news content here..." required></textarea>
+                        <div class="form-text">You can use basic HTML formatting in the content.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Character Count</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <span id="charCount">0</span> characters
+                                    </span>
+                                    <span class="input-group-text">
+                                        <span id="wordCount">0</span> words
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Reading Time</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <span id="readingTime">0</span> min read
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="previewNews()">
+                                <i class="fas fa-eye me-1"></i> Preview
+                            </button>
+                            <div>
+                                <button type="reset" class="btn btn-secondary me-2">
+                                    <i class="fas fa-redo me-1"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Publish News
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Publishing Tips -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Publishing Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Engaging Titles:</strong> Keep titles clear and compelling
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Quality Images:</strong> Use high-resolution featured images
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Proper Formatting:</strong> Use paragraphs and headings
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>SEO Friendly:</strong> Include relevant keywords naturally
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Mobile Optimized:</strong> Ensure content looks good on all devices
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_news_list') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-list me-1"></i> View All News
+                    </a>
+                    <button type="button" class="btn btn-outline-info btn-sm" onclick="insertSampleContent()">
+                        <i class="fas fa-magic me-1"></i> Insert Sample Content
+                    </button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="clearForm()">
+                        <i class="fas fa-broom me-1"></i> Clear Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">News Preview</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.getElementById('content');
+    const charCount = document.getElementById('charCount');
+    const wordCount = document.getElementById('wordCount');
+    const readingTime = document.getElementById('readingTime');
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+    // Character and word count
+    contentTextarea.addEventListener('input', function() {
+        const text = this.value;
+        const characters = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const readingTimeMinutes = Math.ceil(words / 200); // Average reading speed: 200 words per minute
+
+        charCount.textContent = characters;
+        wordCount.textContent = words;
+        readingTime.textContent = readingTimeMinutes;
+    });
+
+    // Image preview
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form validation
+    const form = document.getElementById('newsForm');
+    form.addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const category = document.getElementById('category').value;
+        const content = document.getElementById('content').value.trim();
+
+        if (!title || !category || !content) {
+            e.preventDefault();
+            alert('Please fill in all required fields (title, category, and content).');
+            return;
+        }
+
+        if (title.length > 200) {
+            e.preventDefault();
+            alert('Title must be 200 characters or less.');
+            return;
+        }
+
+        // Show loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Publishing...';
+    });
+});
+
+function removeImage() {
+    const imageInput = document.getElementById('image');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    
+    imageInput.value = '';
+    imagePreviewContainer.style.display = 'none';
+}
+
+function previewNews() {
+    const title = document.getElementById('title').value || 'Untitled News';
+    const content = document.getElementById('content').value || 'No content provided.';
+    const imagePreview = document.getElementById('imagePreview');
+    
+    let previewHtml = `
+        <h2>${title}</h2>
+        <hr>
+    `;
+    
+    if (imagePreview.src) {
+        previewHtml += `<img src="${imagePreview.src}" class="img-fluid mb-3" alt="Preview Image">`;
+    }
+    
+    previewHtml += `<div>${content.replace(/\n/g, '<br>')}</div>`;
+    
+    document.getElementById('previewContent').innerHTML = previewHtml;
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+function insertSampleContent() {
+    const sampleContent = `
+<h3>Introduction</h3>
+<p>This is a sample news article introduction. Replace this with your actual content.</p>
+
+<h3>Main Content</h3>
+<p>Write your main news content here. You can include:</p>
+<ul>
+    <li>Important points</li>
+    <li>Key findings</li>
+    <li>Relevant information</li>
+</ul>
+
+<h3>Conclusion</h3>
+<p>Summarize your news article and provide any final thoughts or calls to action.</p>
+
+<p><strong>Published by:</strong> News Portal Team<br>
+<strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+    `.trim();
+
+    document.getElementById('content').value = sampleContent;
+    
+    // Trigger input event to update counts
+    document.getElementById('content').dispatchEvent(new Event('input'));
+}
+
+function clearForm() {
+    if (confirm('Are you sure you want to clear all form fields?')) {
+        document.getElementById('newsForm').reset();
+        removeImage();
+        document.getElementById('content').dispatchEvent(new Event('input'));
+    }
+}
+</script>
+
+<style>
+.rich-text-editor {
+    min-height: 300px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+#previewContent {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+#previewContent h2 {
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+
+#previewContent h3 {
+    color: #495057;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#previewContent p {
+    margin-bottom: 1rem;
+}
+
+#previewContent ul {
+    padding-left: 1.5rem;
+}
+
+#previewContent li {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
